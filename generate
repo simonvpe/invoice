@@ -9,6 +9,9 @@ api_token=
 workspace_id=2757253
 user_agent=simon.v.pettersson@gmail.com
 
+since="${year}-${month}-01"
+until="${year}-${month}-`date -d "${month}/1 + 1 month - 1 day" "+%d"`"
+
 ccurl() {
     p="$*"
     params="${p// /&}"
@@ -16,9 +19,6 @@ ccurl() {
 }
 
 get() {
-    since="${year}-${month}-01"
-    until="${year}-${month}-`date -d "${month}/1 + 1 month - 1 day" "+%d"`"
-
     ccurl user_agent=$user_agent \
           workspace_id=$workspace_id \
           rounding=on \
@@ -34,8 +34,8 @@ get() {
                         | .title.client as $client
                         | .items[]
                         | (.time/1000/60/60) as $quantity
-    		    | ($quantity | floor) as $qfloor
-    		    | ($quantity - $qfloor) as $qdiff
+                        | ($quantity | floor) as $qfloor
+                        | ($quantity - $qfloor) as $qdiff
                         | {
                             name: $client,
                             quantity: (if $qdiff > 0 then $qfloor + 1 else $quantity end),
@@ -48,9 +48,9 @@ get() {
 
 template() { jq -rc . "`dirname $0`/template.json"; }
 
-number() { jq -rcn "{number: \"${year}-${month}\"}"; }
+additional() { jq -rcn "{number: \"${year}-${month}\", date: \"$until\"}"; }
 
-data() { (get && template && number) | jq -s '.[0] * .[1] * .[2]'; }
+data() { (get && template && additional) | jq -s '.[0] * .[1] * .[2]'; }
 
 curl -k -o - \
      https://invoice-generator.com \
