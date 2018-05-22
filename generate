@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+year=$1
+month=$2
+
+api_token=
+workspace_id=2757253
+user_agent=simon.v.pettersson@gmail.com
+
+ccurl() {
+    p="$*"
+    params="${p// /&}"
+    curl -s -k -o - -u "$api_token:api_token" https://toggl.com/reports/api/v2/summary?$params
+}
+
+get() {
+    since="${year}-${month}-01"
+    until="${year}-${month}-`date -d "${month}/1 + 1 month - 1 day" "+%d"`"
+
+    ccurl user_agent=$user_agent \
+          workspace_id=$workspace_id \
+          rounding=on \
+          grouping=clients \
+          subgrouping=projects \
+          since=$since \
+          until=$until \
+          billable=yes \
+          distinct_rates=yes \
+          | jq -rc '{
+                    items: [
+                        .data[]
+                        | .title.client as $client
+                        | .items[]
+                        | (.time/1000/60/60) as $quantity
+    		    | ($quantity | floor) as $qfloor
+    		    | ($quantity - $qfloor) as $qdiff
+                        | {
+                            name: $client,
+                            quantity: (if $qdiff > 0 then $qfloor + 1 else $quantity end),
+                            unit_cost: (.rate),
+                            description: (.title.project)
+                          }
+                    ]
+          }'
+}
+
+template() { jq -rc . "`dirname $0`/template.json"; }
+
+number() { jq -rcn "{number: \"${year}-${month}\"}"; }
+
+data() { (get && template && number) | jq -s '.[0] * .[1] * .[2]'; }
+
+curl -k -o - \
+     https://invoice-generator.com \
+     -H 'Content-Type: application/json' \
+     -d "`data`"

@@ -1,0 +1,31 @@
+{
+    "header": "Faktura",
+    "from": "Simon Pettersson\nGrindstuv. 34\n16733 Bromma\nMomsreg.nr: SE850128105201\nGodkänd för F-skatt",
+    "to_title": "Mottagare",
+    "to": "Berotec",
+    "invoice_number_title": "#",
+    "date_title": "Datum",
+    "payment_terms_title": "Betalningsvillkor",
+    "due_date_title": "Forfallodatum",
+    "quantity_header": "Antal",
+    "item_header": "Artikel",
+    "unit_cost_header": "Pris",
+    "amount_header": "Summa",
+    "subtotal_title": "Subtotal",
+    "discounts_title": "Rabatter",
+    "tax_title": "Moms",
+    "shipping_title": "Frakt",
+    "total_title": "Total",
+    "amount_paid_title": "Betalt",
+    "balance_title": "Att betala",
+    "terms_title": "Villkor",
+    "notes_title": "Anteckningar",
+    "payment_terms": "30 dagar netto",
+    "currency": "SEK",
+    "tax": 25,
+    "fields": {
+        "tax": "%",
+        "discounts": false,
+        "shipping": false
+    }
+}
